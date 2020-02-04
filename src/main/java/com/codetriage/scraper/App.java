@@ -19,52 +19,32 @@ public class App {
   public static void main(String[] args) {
 
     try {
-      /**
-       * Here we create a document object,
-       * The we use JSoup to fetch the website.
-       */
-      Document doc = Jsoup.connect("https://www.codetriage.com/?language=Java").get();
-      
-      /**
-       * With the document fetched,
-       * we use JSoup???s title() method to fetch the title
-       */ 
+      // Document doc = Jsoup.connect("https://www.linkedin.com/jobs/search/?keywords=java").get();
+
+// Fetch url with proxy
+      Document doc = Jsoup //
+              .connect("https://www.linkedin.com/jobs/search/?distance=10&f_PP=104746682&geoId=104746682&keywords=java&location=S%C3%A3o%20Paulo%2C%20S%C3%A3o%20Paulo%2C%20Brasil") //
+              .proxy("10.10.96.179", 3128) // sets a HTTP proxy
+              .userAgent("Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10.4; en-US; rv:1.9.2.2) Gecko/20100316 Firefox/3.6.2") //
+              .header("Content-Language", "pt-BR") //
+              .get();
+
       System.out.printf("\nWebsite Title: %s\n\n", doc.title());
 
+      // jobs-search-results__list artdeco-list
+      Elements repositories = doc.getElementsByClass("result-card job-result-card result-card--with-hover-state" );
 
-      // Get the list of repositories
-      Elements repositories = doc.getElementsByClass("repo-item");
-      
-      /**
-       * For each repository, extract the following information:
-       * 1. Title
-       * 2. Number of issues
-       * 3. Description
-       * 4. Full name on github
-       */
+      int cont=1;
       for (Element repository : repositories) {
         // Extract the title
-        String repositoryTitle = repository.getElementsByClass("repo-item-title").text();
+        // String repositoryTitle = repository.getElementsByClass("silk-icon-32").text();
+        String repositoryTitle = repository.getElementsByClass("result-card__title job-result-card__title").text();
+        String skill =  repository.getElementsByClass("job-result-card__snippet").text();
 
-        // Extract the number of issues on the repository
-        String repositoryIssues = repository.getElementsByClass("repo-item-issues").text();
 
-        // Extract the description of the repository
-        String repositoryDescription = repository.getElementsByClass("repo-item-description").text();
+        System.out.println("vaga" + cont++ + ": " +   repositoryTitle );
+        System.out.println("skill: " + skill );
 
-        // Get the full name of the repository
-        String repositoryGithubName = repository.getElementsByClass("repo-item-full-name").text();
-
-        /**
-         * The repository full name contains brackets that we remove first
-         * before generating the valif Github link.
-         */
-        String repositoryGithubLink = "https://github.com/" + repositoryGithubName.replaceAll("[()]", "");
-
-        // Format and print the information to the console
-        System.out.println(repositoryTitle + " - " + repositoryIssues);
-        System.out.println("\t" + repositoryDescription);
-        System.out.println("\t" + repositoryGithubLink);
         System.out.println("\n");
 
       }
